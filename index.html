@@ -1,0 +1,490 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photo Studio Pro</title>
+<style>
+:root{
+ --bg:#f3f5fa;--card:#fff;--text:#20283a;
+ --muted:#718096;--primary:#5856d6;--border:#e5e9f2;
+ --green:#15966b;--red:#dc4545;
+}
+*{box-sizing:border-box}
+body{
+ margin:0;background:var(--bg);color:var(--text);
+ font-family:Arial,"Noto Sans Bengali",sans-serif;
+}
+header{
+ background:#24243f;color:white;padding:16px 22px;
+ display:flex;align-items:center;justify-content:space-between;
+ gap:12px;flex-wrap:wrap;
+}
+header h2{margin:0;font-size:21px}
+header button{background:#fff;color:#24243f}
+button{
+ border:0;border-radius:8px;padding:10px 15px;
+ background:var(--primary);color:white;cursor:pointer;
+ font-weight:600;
+}
+button:hover{opacity:.88}
+button.danger{background:var(--red)}
+button.secondary{background:#e9eaf8;color:#34336f}
+.layout{display:flex;min-height:calc(100vh - 60px)}
+aside{
+ width:225px;background:#fff;padding:18px 12px;
+ border-right:1px solid var(--border);
+}
+nav button{
+ width:100%;text-align:left;margin-bottom:7px;
+ background:transparent;color:var(--text);
+}
+nav button.active,nav button:hover{
+ background:#eeeeff;color:var(--primary);
+}
+main{padding:22px;flex:1;min-width:0}
+.page{display:none}
+.page.active{display:block}
+h2,h3{margin-top:0}
+.cards{
+ display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+ gap:14px;margin-bottom:20px;
+}
+.card{
+ background:var(--card);padding:18px;border-radius:13px;
+ border:1px solid var(--border);margin-bottom:15px;
+}
+.stat{font-size:27px;font-weight:bold;margin-top:9px}
+.muted{color:var(--muted);font-size:13px}
+input,select{
+ width:100%;padding:11px;border:1px solid var(--border);
+ border-radius:8px;margin:6px 0 13px;background:white;
+ color:var(--text);
+}
+label{font-size:14px;font-weight:600}
+.formgrid{
+ display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+ gap:12px;
+}
+table{width:100%;border-collapse:collapse;min-width:480px}
+th,td{padding:11px;border-bottom:1px solid var(--border);text-align:left}
+th{background:#f5f5fc}
+.tablewrap{overflow-x:auto}
+img.preview{max-width:100%;max-height:350px;display:block;margin:12px auto}
+#cropCanvas{max-width:100%;border:1px solid #ccc;display:block;margin:12px 0}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.notice{background:#fff5d9;padding:12px;border-radius:8px;margin-bottom:15px;font-size:13px}
+footer{text-align:center;padding:20px;color:var(--muted);font-size:12px}
+@media(max-width:700px){
+ .layout{display:block}
+ aside{width:100%;border-right:0;border-bottom:1px solid var(--border)}
+ nav{display:grid;grid-template-columns:repeat(2,1fr)}
+ main{padding:14px}
+}
+</style>
+</head>
+<body>
+
+<header>
+ <h2>📸 Photo Studio Pro</h2>
+ <div class="actions">
+  <button class="secondary" onclick="toggleLanguage()">বাংলা / English</button>
+ </div>
+</header>
+
+<div class="layout">
+<aside>
+ <nav>
+  <button class="active" onclick="showPage('dashboard',this)">🏠 Dashboard</button>
+  <button onclick="showPage('photo',this)">🖼️ Photo Editor</button>
+  <button onclick="showPage('pricing',this)">💰 My Price List</button>
+  <button onclick="showPage('work',this)">➕ Add Work</button>
+  <button onclick="showPage('history',this)">📋 Work History</button>
+ </nav>
+</aside>
+
+<main>
+ <div class="notice">
+  প্রথম সংস্করণ: আপনার মূল্য তালিকা ও কাজের হিসাব এই Browser-এ সংরক্ষিত হবে।
+  এটি এখনো নিরাপদ Multi-user বা Cloud Login নয়।
+ </div>
+
+ <!-- DASHBOARD -->
+ <section id="dashboard" class="page active">
+  <h2>Dashboard</h2>
+  <div class="cards">
+   <div class="card">
+    <div class="muted">আজকের কাজ</div>
+    <div class="stat" id="todayCount">0</div>
+   </div>
+   <div class="card">
+    <div class="muted">আজকের আয়</div>
+    <div class="stat">৳ <span id="todayIncome">0</span></div>
+   </div>
+   <div class="card">
+    <div class="muted">মোট কাজ</div>
+    <div class="stat" id="totalCount">0</div>
+   </div>
+   <div class="card">
+    <div class="muted">মোট আয়</div>
+    <div class="stat">৳ <span id="totalIncome">0</span></div>
+   </div>
+  </div>
+  <div class="card">
+   <h3>দ্রুত কাজ শুরু করুন</h3>
+   <div class="actions">
+    <button onclick="showPage('photo')">ছবি এডিট</button>
+    <button onclick="showPage('work')">নতুন কাজ যোগ</button>
+    <button onclick="showPage('pricing')">মূল্য নির্ধারণ</button>
+   </div>
+  </div>
+ </section>
+
+ <!-- PHOTO EDITOR -->
+ <section id="photo" class="page">
+  <h2>Photo Editor & Crop</h2>
+  <div class="card">
+   <label>ছবি নির্বাচন করুন</label>
+   <input type="file" id="photoInput" accept="image/*">
+   <img id="photoPreview" class="preview" alt="ছবির Preview" hidden>
+   <div id="cropControls" hidden>
+    <h3>Crop Settings (Pixel)</h3>
+    <div class="formgrid">
+     <div><label>X Position</label><input id="cropX" type="number" value="0" min="0"></div>
+     <div><label>Y Position</label><input id="cropY" type="number" value="0" min="0"></div>
+     <div><label>Width</label><input id="cropW" type="number" value="300" min="1"></div>
+     <div><label>Height</label><input id="cropH" type="number" value="300" min="1"></div>
+    </div>
+    <div class="actions">
+     <button onclick="cropPhoto()">Crop Image</button>
+     <button class="secondary" onclick="resetCrop()">Reset</button>
+     <button class="secondary" onclick="downloadPhoto()">Download JPG</button>
+    </div>
+    <canvas id="cropCanvas" hidden></canvas>
+   </div>
+  </div>
+ </section>
+
+ <!-- PRICING -->
+ <section id="pricing" class="page">
+  <h2>আমার কাজের মূল্য তালিকা</h2>
+  <div class="card">
+   <div class="formgrid">
+    <div>
+     <label>কাজের নাম</label>
+     <input id="priceName" placeholder="যেমন: এক পিস ছবি এডিট">
+    </div>
+    <div>
+     <label>একক মূল্য (টাকা)</label>
+     <input id="priceAmount" type="number" min="0" step="0.01" placeholder="১০">
+    </div>
+   </div>
+   <button onclick="addPrice()">মূল্য যোগ করুন</button>
+  </div>
+  <div class="card tablewrap">
+   <table>
+    <thead><tr><th>কাজের নাম</th><th>মূল্য</th><th>Action</th></tr></thead>
+    <tbody id="priceTable"></tbody>
+   </table>
+  </div>
+ </section>
+
+ <!-- ADD WORK -->
+ <section id="work" class="page">
+  <h2>নতুন কাজ যোগ করুন</h2>
+  <div class="card">
+   <label>কাজ নির্বাচন করুন</label>
+   <select id="workService" onchange="calculateWork()"></select>
+   <div class="formgrid">
+    <div>
+     <label>কাজের পরিমাণ</label>
+     <input id="workQuantity" type="number" min="1" value="1" oninput="calculateWork()">
+    </div>
+    <div>
+     <label>প্রতি কাজের মূল্য (টাকা)</label>
+     <input id="workUnitPrice" type="number" min="0" step="0.01" oninput="calculateWork()">
+    </div>
+   </div>
+   <label>কাস্টমারের নাম (ঐচ্ছিক)</label>
+   <input id="customerName" placeholder="কাস্টমারের নাম">
+   <label>মোট টাকা</label>
+   <div class="stat">৳ <span id="workTotal">0</span></div>
+   <button onclick="saveWork()">কাজ সংরক্ষণ করুন</button>
+  </div>
+ </section>
+
+ <!-- HISTORY -->
+ <section id="history" class="page">
+  <h2>কাজের History</h2>
+  <div class="card">
+   <div class="actions">
+    <button onclick="exportCSV()">Excel-এর জন্য CSV Download</button>
+   </div>
+   <div class="tablewrap">
+    <table>
+     <thead>
+      <tr><th>তারিখ</th><th>কাজ</th><th>পরিমাণ</th><th>একক মূল্য</th><th>মোট</th><th>কাস্টমার</th><th>Action</th></tr>
+     </thead>
+     <tbody id="historyTable"></tbody>
+    </table>
+   </div>
+  </div>
+ </section>
+
+</main>
+</div>
+
+<footer>Photo Studio Pro | Personal Shop Edition</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+
+function readData(key, fallback){
+ try{
+  const value=JSON.parse(localStorage.getItem(key));
+  return value ?? fallback;
+ }catch(e){return fallback;}
+}
+let prices=readData("psp_prices",[
+ {id:1,name:"এক পিস ছবি এডিট",amount:10},
+ {id:2,name:"এক পিস ছবি প্রিন্ট",amount:8},
+ {id:3,name:"Passport Photo",amount:50}
+]);
+let works=readData("psp_works",[]);
+
+function saveData(){
+ localStorage.setItem("psp_prices",JSON.stringify(prices));
+ localStorage.setItem("psp_works",JSON.stringify(works));
+}
+
+function showPage(id,button){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ $(id).classList.add("active");
+ document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+ if(button)button.classList.add("active");
+ if(id==="pricing")renderPrices();
+ if(id==="work")renderServiceOptions();
+ if(id==="history")renderHistory();
+ updateDashboard();
+}
+
+function addPrice(){
+ const name=$("priceName").value.trim();
+ const amount=Number($("priceAmount").value);
+ if(!name){alert("কাজের নাম লিখুন");return;}
+ if($("priceAmount").value==="" || !Number.isFinite(amount) || amount<0){
+  alert("সঠিক মূল্য লিখুন");return;
+ }
+ prices.push({id:Date.now(),name,amount});
+ saveData();
+ $("priceName").value="";
+ $("priceAmount").value="";
+ renderPrices();
+}
+
+function renderPrices(){
+ $("priceTable").innerHTML="";
+ prices.forEach(p=>{
+  const tr=document.createElement("tr");
+  tr.innerHTML=`<td></td><td>৳ ${p.amount}</td><td></td>`;
+  tr.children[0].textContent=p.name;
+  const edit=document.createElement("button");
+  edit.className="secondary";edit.textContent="Edit";
+  edit.onclick=()=>editPrice(p.id);
+  const del=document.createElement("button");
+  del.className="danger";del.textContent="Delete";
+  del.onclick=()=>deletePrice(p.id);
+  tr.children[2].append(edit,del);
+  $("priceTable").appendChild(tr);
+ });
+}
+
+function editPrice(id){
+ const p=prices.find(x=>x.id===id);
+ if(!p)return;
+ const name=prompt("কাজের নাম",p.name);
+ if(name===null)return;
+ const amount=prompt("নতুন একক মূল্য",p.amount);
+ if(amount===null)return;
+ if(!name.trim() || amount.trim()==="" || !Number.isFinite(Number(amount)) || Number(amount)<0){
+  alert("সঠিক তথ্য দিন");return;
+ }
+ p.name=name.trim();p.amount=Number(amount);
+ saveData();renderPrices();renderServiceOptions();
+}
+
+function deletePrice(id){
+ if(!confirm("এই কাজের মূল্য তালিকা থেকে মুছে ফেলবেন?"))return;
+ prices=prices.filter(p=>p.id!==id);
+ saveData();renderPrices();renderServiceOptions();
+}
+
+function renderServiceOptions(){
+ const select=$("workService");
+ select.innerHTML="";
+ prices.forEach(p=>{
+  const opt=document.createElement("option");
+  opt.value=p.id;opt.textContent=p.name;
+  select.appendChild(opt);
+ });
+ calculateWork();
+}
+
+function calculateWork(){
+ const p=prices.find(x=>x.id===Number($("workService").value));
+ if(p && $("workUnitPrice").dataset.manual!=="yes"){
+  $("workUnitPrice").value=p.amount;
+ }
+ const qty=Math.max(0,Number($("workQuantity").value)||0);
+ const unit=Math.max(0,Number($("workUnitPrice").value)||0);
+ $("workTotal").textContent=(qty*unit).toFixed(2);
+}
+$("workUnitPrice").addEventListener("input",()=>{
+ $("workUnitPrice").dataset.manual="yes";
+ calculateWork();
+});
+$("workService").addEventListener("change",()=>{
+ $("workUnitPrice").dataset.manual="";
+ calculateWork();
+});
+
+function saveWork(){
+ const p=prices.find(x=>x.id===Number($("workService").value));
+ const qty=Number($("workQuantity").value);
+ const unit=Number($("workUnitPrice").value);
+ if(!p){alert("আগে মূল্য তালিকায় একটি কাজ যোগ করুন");return;}
+ if(!Number.isInteger(qty)||qty<1||!Number.isFinite(unit)||unit<0){
+  alert("সঠিক পরিমাণ ও মূল্য দিন");return;
+ }
+ works.push({
+  id:Date.now(),date:new Date().toISOString(),
+  name:p.name,quantity:qty,unitPrice:unit,
+  total:qty*unit,customer:$("customerName").value.trim()
+ });
+ saveData();
+ $("workQuantity").value=1;
+ $("customerName").value="";
+ $("workUnitPrice").dataset.manual="";
+ renderServiceOptions();
+ updateDashboard();
+ alert("কাজ সফলভাবে সংরক্ষণ হয়েছে");
+}
+
+function renderHistory(){
+ const body=$("historyTable");
+ body.innerHTML="";
+ [...works].reverse().forEach(w=>{
+  const tr=document.createElement("tr");
+  const date=new Date(w.date).toLocaleString("bn-BD");
+  [date,w.name,w.quantity,"৳ "+w.unitPrice,"৳ "+w.total,w.customer||"-"].forEach(v=>{
+   const td=document.createElement("td");td.textContent=v;tr.appendChild(td);
+  });
+  const td=document.createElement("td");
+  const del=document.createElement("button");
+  del.textContent="Delete";del.className="danger";
+  del.onclick=()=>{
+   if(confirm("এই কাজের এন্ট্রি মুছে ফেলবেন?")){
+    works=works.filter(x=>x.id!==w.id);saveData();renderHistory();updateDashboard();
+   }
+  };
+  td.appendChild(del);tr.appendChild(td);body.appendChild(tr);
+ });
+}
+
+function updateDashboard(){
+ const today=new Date().toDateString();
+ const todays=works.filter(w=>new Date(w.date).toDateString()===today);
+ $("todayCount").textContent=todays.reduce((s,w)=>s+w.quantity,0);
+ $("todayIncome").textContent=todays.reduce((s,w)=>s+w.total,0).toFixed(2);
+ $("totalCount").textContent=works.reduce((s,w)=>s+w.quantity,0);
+ $("totalIncome").textContent=works.reduce((s,w)=>s+w.total,0).toFixed(2);
+}
+
+function exportCSV(){
+ const rows=[["Date","Service","Quantity","Unit Price","Total","Customer"]];
+ works.forEach(w=>rows.push([w.date,w.name,w.quantity,w.unitPrice,w.total,w.customer]));
+ const csv="\uFEFF"+rows.map(r=>r.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\n");
+ const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");a.href=url;a.download="photo-studio-work-history.csv";a.click();
+ URL.revokeObjectURL(url);
+}
+
+let originalImage=null;
+let currentImage=null;
+$("photoInput").addEventListener("change",e=>{
+ const file=e.target.files[0];
+ if(!file)return;
+ if(!file.type.startsWith("image/")){alert("একটি ছবি নির্বাচন করুন");return;}
+ const url=URL.createObjectURL(file);
+ const img=new Image();
+ img.onload=()=>{
+  originalImage=img;currentImage=img;
+  $("photoPreview").src=url;
+  $("photoPreview").hidden=false;
+  $("cropControls").hidden=false;
+  $("cropX").value=0;$("cropY").value=0;
+  $("cropW").value=img.naturalWidth;$("cropH").value=img.naturalHeight;
+ };
+ img.onerror=()=>alert("ছবিটি খোলা যায়নি");
+ img.src=url;
+});
+
+function cropPhoto(){
+ if(!currentImage)return;
+ const x=Math.floor(Number($("cropX").value));
+ const y=Math.floor(Number($("cropY").value));
+ const w=Math.floor(Number($("cropW").value));
+ const h=Math.floor(Number($("cropH").value));
+ if(![x,y,w,h].every(Number.isFinite)||x<0||y<0||w<1||h<1||
+ x+w>currentImage.naturalWidth||y+h>currentImage.naturalHeight){
+  alert("Crop-এর মান ছবির সীমার মধ্যে দিন");return;
+ }
+ const canvas=$("cropCanvas");
+ canvas.width=w;canvas.height=h;
+ const ctx=canvas.getContext("2d");
+ ctx.drawImage(currentImage,x,y,w,h,0,0,w,h);
+ currentImage=new Image();
+ currentImage.onload=()=>{
+  $("photoPreview").src=canvas.toDataURL("image/png");
+ };
+ currentImage.src=canvas.toDataURL("image/png");
+ canvas.hidden=false;
+}
+
+function resetCrop(){
+ if(!originalImage)return;
+ currentImage=originalImage;
+ $("photoPreview").src=originalImage.src;
+ $("cropX").value=0;$("cropY").value=0;
+ $("cropW").value=originalImage.naturalWidth;
+ $("cropH").value=originalImage.naturalHeight;
+ $("cropCanvas").hidden=true;
+}
+function downloadPhoto(){
+ if(!currentImage)return;
+ const canvas=document.createElement("canvas");
+ canvas.width=currentImage.naturalWidth;
+ canvas.height=currentImage.naturalHeight;
+ canvas.getContext("2d").drawImage(currentImage,0,0);
+ const a=document.createElement("a");
+ a.href=canvas.toDataURL("image/jpeg",0.95);
+ a.download="edited-photo.jpg";a.click();
+}
+
+let english=false;
+function toggleLanguage(){
+ english=!english;
+ alert(english?
+ "English interface translation will be added in the next development phase.":
+ "বাংলা ইন্টারফেস চালু আছে।");
+}
+
+renderPrices();
+renderServiceOptions();
+renderHistory();
+updateDashboard();
+</script>
+</body>
+</html>
