@@ -1,153 +1,108 @@
-📸 Photo Studio Pro
+# Photo Studio Pro — Web Edition
 
-Professional Photo Studio & Computer Shop Management Software
+A local-first web starter for a photo studio and computer shop workflow. It is designed to be hosted as a static site on GitHub Pages and opened in a modern browser.
 
-Photo Studio Pro is a modern photo editing and computer shop management application designed to make daily shop operations easier, faster and more organized.
+## Included and working in this release
 
-Our goal is to provide photo editing, printing, document services, customer management and personal income tracking in one simple application.
+- Bangla / English interface toggle
+- Light / Dark theme
+- Multi-image upload and image selection
+- Local image preview and processing using Canvas
+- Crop by source-pixel X, Y, Width and Height
+- Brightness, contrast and saturation
+- Solid background color fill behind transparent images
+- Rotate, horizontal flip, undo and redo
+- JPG / PNG export
+- Print sheet layout for A4, A5, Letter, 4R, 5R, 6R and 8R
+- Passport photo export preset (1.5 × 1.9 inches at 300 px/in) and stamp preset
+- Copy count, gap, cut lines and border options
+- Personal service price list
+- Work entries with quantity × unit price calculation
+- Historical entries retain the price used at the time
+- Monthly income / quantity summary and CSV export
+- JSON backup and restore for service and work records
 
----
+## Important limitations — not implemented in this release
 
-🚀 Main Features
+This is **not yet the complete master-plan software**. The following require additional implementation, backend services, AI providers, or hardware/browser integration:
 
-🖼️ Photo Studio & Editing
+- Secure phone-number/password login, admin approvals, password reset and centralized multi-user database
+- Admin dashboard, user activity log, user permissions and cross-device sync
+- AI background removal, AI enhancement, old-photo restoration, colorization, face detection and retouching
+- AI background removal and advanced background editing
+- PDF merge/split/compress/rotate and PDF-to-image tools
+- Physical scanner hardware integration
+- CV builder, Bangla phonetic typing, application templates and government form integrations
+- Graphic design editor, QR and barcode generation
+- Customer management, receipts, dues, expenses and profit/loss reports
+- Printer-driver profiles, ink-cost estimation and native printer management
+- Automatic background backup and native arbitrary-folder access
 
-- Upload single or multiple photos.
-- Photo cropping and resizing.
-- Passport and stamp-size photo presets.
-- Background removal and background changing.
-- HD photo enhancement.
-- Brightness, contrast and sharpness adjustment.
-- Face detection and photo positioning.
-- Rotate, flip, zoom and undo/redo.
-- Multiple photo copies.
-- Automatic print layout.
-- JPG and PNG export.
-- 300 DPI print support.
+No inactive feature is presented as working. The current release is a usable first phase, not a fake demo of all planned modules.
 
-📄 PDF & Document Tools
+## Data and privacy
 
-- JPG to PDF.
-- PDF to JPG.
-- Merge, split and compress PDF.
-- Rotate and crop documents.
-- Document cleanup and scanning support.
+- Service prices and work entries are stored in this browser's `localStorage`.
+- Data is local to the current browser profile and device. It does not sync between devices or users.
+- Clearing browser site data can delete records. Download JSON backups regularly.
+- Uploaded images are processed in the browser and are not uploaded to a server by this app.
+- Backup files include service prices, work entries and settings, but **not uploaded image files**.
+- Do not use this local-only build to store sensitive NID, birth registration, passwords or other confidential customer information.
 
-✍️ Bangla & English Typing
+## Run locally
 
-- Bangla and English typing.
-- CV and Resume Maker.
-- Application and letter templates.
-- PDF export and A4 printing.
+Because the JavaScript uses ES modules, do not open `index.html` directly as a `file://` URL. Run a local static server instead.
 
-🎨 Graphic Design
+### Easy option (Python installed)
 
-- Visiting Card.
-- Shop Banner and Poster.
-- Facebook Cover.
-- ID Card.
-- Wedding Photo Frame.
-- Custom design templates.
+1. Extract the ZIP.
+2. Open the extracted project folder.
+3. In the folder address bar, type `cmd` and press Enter.
+4. Run:
 
-💰 Personal Pricing & Income Management
+   ```bash
+   py -m http.server 8000
+   ```
 
-- Each user can set their own service prices.
-- Add new services and change prices.
-- Calculate income automatically.
-- Track daily work quantity.
-- Daily, weekly and monthly income reports.
-- Maintain personal work history.
+5. Open `http://localhost:8000` in Firefox or Chrome.
 
-👥 Customer Management
+If `py` is unavailable, try `python -m http.server 8000`.
 
-- Customer information.
-- Work history.
-- Payment and due tracking.
-- Customer bills and receipts.
+## Publish on GitHub Pages
 
-🔐 Admin & User Management
+1. Open your repository: `https://github.com/Mustakimraj/Photo-Studio-Pro-New`
+2. Remove the old placeholder `index.html` and upload the files/folders from this ZIP to the repository root.
+3. Keep `index.html` at the repository root. Do not upload the containing ZIP folder itself.
+4. Commit the changes to the `main` branch.
+5. In Settings → Pages, choose **Deploy from a branch**, branch `main`, folder `/ (root)`.
+6. Wait for the deployment and open:
 
-- Secure user login.
-- Admin approval system.
-- User account management.
-- User activity tracking.
-- Individual user permissions.
-- User-wise pricing control.
+   `https://mustakimraj.github.io/Photo-Studio-Pro-New/`
 
-💾 Backup & Storage
+## Print notes
 
-- Local data storage.
-- Manual and automatic backup.
-- Data restore.
-- Offline support where available.
+- The layout canvas is generated at 150 pixels per inch for browser printing. This is a practical raster preview, not a guaranteed calibrated 300-DPI print master.
+- In the browser print dialog, select the matching paper size, disable browser headers/footers, and choose 100% / Actual size where available.
+- Printer margins and borderless printing depend on the printer driver.
+- Passport preset is 1.5 × 1.9 inches. Confirm the physical output with a ruler before producing customer orders.
 
----
+## Project structure
 
-🌐 Platform Support
+```text
+Photo-Studio-Pro-Web/
+├── index.html
+├── css/
+│   └── styles.css
+├── js/
+│   ├── app.js
+│   ├── image-editor.js
+│   ├── i18n.js
+│   └── storage.js
+├── docs/
+│   └── NEXT_PHASE.md
+└── README.md
+```
 
-- Web Application
-- Windows Desktop Application
-- Bangla and English interface
-- Responsive design
-- Light and Dark Mode
+## Next phase
 
----
-
-🛠️ Technology
-
-The project is planned to use:
-
-- HTML5
-- CSS3
-- JavaScript
-- IndexedDB
-- Canvas API
-- GitHub Pages
-- Secure Backend & Database
-- Tauri for Windows Desktop
-
----
-
-📌 Development Status
-
-This project is under development.
-
-Features will be implemented and tested in phases. Some advanced features require additional backend services, APIs or hardware integration.
-
-Module| Status
-Basic Dashboard| In Development
-Photo Upload & Crop| In Development
-Personal Pricing| In Development
-Work History| In Development
-AI Background Removal| Planned
-HD Enhancement| Planned
-PDF Tools| Planned
-CV & Typing| Planned
-Admin Panel| Planned
-Secure User Login| Planned
-Windows Desktop App| Planned
-
----
-
-🎯 Project Goal
-
-To build an all-in-one, easy-to-use and reliable software for photo studios and computer shops.
-
-The software will help users manage photo editing, printing, document services, customer work and personal income from one place.
-
----
-
-👨‍💻 Project Owner
-
-Mustakimraj
-
-Project: Photo Studio Pro
-
-GitHub Repository:
-https://github.com/Mustakimraj/Photo-Studio-Pro-New
-
----
-
-⭐ If you find this project useful, you can support its development by giving it a Star on GitHub.
-
-Photo Studio Pro – Everything Your Photo Studio Needs in One Place.
+Read `docs/NEXT_PHASE.md` before adding secure accounts and backend features.
